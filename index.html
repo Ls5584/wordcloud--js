@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>词云生成器</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>词云生成器</h1>
+        <div class="input-section">
+            <textarea id="textInput" placeholder="在此输入文本..."></textarea>
+            <div class="file-upload">
+                <input type="file" id="fileInput" accept=".txt">
+                <label for="fileInput">上传文件</label>
+            </div>
+            <div class="buttons">
+                <button id="generateBtn">生成词云</button>
+                <button id="resetBtn">重置</button>
+            </div>
+        </div>
+        <div id="wordcloud" class="wordcloud-container"></div>
+    </div>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
