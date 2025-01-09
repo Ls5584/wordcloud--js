@@ -16,29 +16,43 @@
     <div class="container">
         <h1>词云生成器</h1>
         <div class="input-section">
-            <textarea id="textInput" placeholder="在此输入文本..."></textarea>
+            <div class="textarea-container">
+                <textarea id="textInput" placeholder="在此输入文本...（最多10000字）"></textarea>
+                <div class="char-count">0 / 10000</div>
+            </div>
             <div class="file-upload">
                 <input type="file" id="fileInput" accept=".txt">
                 <label for="fileInput">上传文件</label>
             </div>
+            <div class="buttons">
+                <button id="analyzeBtn">统计词频</button>
+                <button id="generateBtn">生成词云</button>
+                <button id="resetBtn">重置</button>
+                <button id="saveBtn" style="display: none;">保存图片</button>
+            </div>
+        </div>
+
+        <div class="analysis-section" style="display: none;">
             <div class="word-stats">
                 <h3>词频统计（Top 10）</h3>
+                <div class="word-stats-header">
+                    <span>词语</span>
+                    <span>出现次数</span>
+                </div>
                 <div id="wordStats" class="word-stats-list"></div>
             </div>
+            
             <div class="stopwords-section">
-                <h3>停用词管理</h3>
+                <h3>自定义停用词</h3>
+                <p class="stopwords-tip">添加你想要过滤的词语，这些词将不会出现在词云中</p>
                 <div class="stopwords-input">
                     <input type="text" id="stopwordInput" placeholder="输入要过滤的词">
                     <button id="addStopword">添加</button>
                 </div>
                 <div id="stopwordsList" class="stopwords-list"></div>
             </div>
-            <div class="buttons">
-                <button id="generateBtn">生成词云</button>
-                <button id="resetBtn">重置</button>
-                <button id="saveBtn">保存图片</button>
-            </div>
         </div>
+
         <div id="wordcloud" class="wordcloud-container"></div>
     </div>
     <script src="https://d3js.org/d3.v7.min.js"></script>

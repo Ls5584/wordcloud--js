@@ -2,6 +2,7 @@
 const textInput = document.getElementById('textInput');
 const fileInput = document.getElementById('fileInput');
 const generateBtn = document.getElementById('generateBtn');
+const analyzeBtn = document.getElementById('analyzeBtn');
 const resetBtn = document.getElementById('resetBtn');
 const saveBtn = document.getElementById('saveBtn');
 const wordcloudContainer = document.getElementById('wordcloud');
@@ -10,9 +11,14 @@ const wordStats = document.getElementById('wordStats');
 const stopwordInput = document.getElementById('stopwordInput');
 const addStopwordBtn = document.getElementById('addStopword');
 const stopwordsList = document.getElementById('stopwordsList');
+const analysisSection = document.querySelector('.analysis-section');
+const charCount = document.querySelector('.char-count');
 
-// 默认停用词
-let stopwords = new Set([
+// 文本限制
+const MAX_CHARS = 10000;
+
+// 默认停用词（不显示给用户）
+const defaultStopwords = new Set([
     '的', '了', '和', '是', '就', '都', '而', '及', '与', '着',
     '之', '用', '于', '把', '等', '去', '又', '能', '好', '在',
     '还', '没', '要', '这', '那', '有', '我', '你', '他', '她',
@@ -23,6 +29,12 @@ let stopwords = new Set([
     'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 'one',
     'all', 'would', 'there', 'their'
 ]);
+
+// 用户自定义停用词
+let customStopwords = new Set();
+
+// 当前文本的词频数据
+let currentWordCount = null;
 
 // 主题切换
 themeToggle.addEventListener('click', () => {
@@ -37,30 +49,64 @@ themeToggle.addEventListener('click', () => {
 const savedTheme = localStorage.getItem('theme') || 'light';
 document.documentElement.setAttribute('data-theme', savedTheme);
 
+// 文本输入监控
+textInput.addEventListener('input', () => {
+    const text = textInput.value;
+    const length = text.length;
+    charCount.textContent = `${length} / ${MAX_CHARS}`;
+    
+    if (length > MAX_CHARS) {
+        textInput.value = text.slice(0, MAX_CHARS);
+        charCount.textContent = `${MAX_CHARS} / ${MAX_CHARS}`;
+    }
+});
+
 // 文件上传处理
 fileInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (file) {
         const text = await file.text();
-        textInput.value = text;
-        processText(text);
+        if (text.length > MAX_CHARS) {
+            alert(`文件内容超过${MAX_CHARS}字符限制，将只保留前${MAX_CHARS}字符`);
+            textInput.value = text.slice(0, MAX_CHARS);
+        } else {
+            textInput.value = text;
+        }
+        charCount.textContent = `${textInput.value.length} / ${MAX_CHARS}`;
     }
+});
+
+// 统计词频
+analyzeBtn.addEventListener('click', () => {
+    const text = textInput.value.trim();
+    if (!text) {
+        alert('请先输入文本或上传文件！');
+        return;
+    }
+    
+    currentWordCount = processText(text);
+    updateWordStats(currentWordCount);
+    analysisSection.style.display = 'block';
+    analyzeBtn.classList.add('active');
 });
 
 // 停用词管理
 addStopwordBtn.addEventListener('click', () => {
     const word = stopwordInput.value.trim();
-    if (word && !stopwords.has(word)) {
-        stopwords.add(word);
+    if (word && !customStopwords.has(word) && !defaultStopwords.has(word)) {
+        customStopwords.add(word);
         updateStopwordsList();
         stopwordInput.value = '';
-        processText(textInput.value);
+        if (currentWordCount) {
+            currentWordCount = processText(textInput.value.trim());
+            updateWordStats(currentWordCount);
+        }
     }
 });
 
 function updateStopwordsList() {
     stopwordsList.innerHTML = '';
-    [...stopwords].sort().forEach(word => {
+    [...customStopwords].sort().forEach(word => {
         const tag = document.createElement('div');
         tag.className = 'stopword-tag';
         tag.innerHTML = `
@@ -72,41 +118,35 @@ function updateStopwordsList() {
 }
 
 function removeStopword(word) {
-    stopwords.delete(word);
+    customStopwords.delete(word);
     updateStopwordsList();
-    processText(textInput.value);
+    if (currentWordCount) {
+        currentWordCount = processText(textInput.value.trim());
+        updateWordStats(currentWordCount);
+    }
 }
 
 // 文本处理
 function processText(text) {
-    if (!text) return;
+    if (!text) return null;
 
     const words = text
         .toLowerCase()
         .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
         .split(/\s+/)
-        .filter(word => word.length > 1 && !stopwords.has(word));
+        .filter(word => word.length > 1 && !defaultStopwords.has(word) && !customStopwords.has(word));
 
     const wordCount = {};
     words.forEach(word => {
         wordCount[word] = (wordCount[word] || 0) + 1;
     });
 
-    // 更新词频统计
-    updateWordStats(wordCount);
-
-    // 生成词云数据
-    const wordcloudData = Object.entries(wordCount)
-        .map(([text, size]) => ({
-            text,
-            size: 10 + size * 10
-        }));
-
-    // 生成词云
-    generateWordCloud(wordcloudData);
+    return wordCount;
 }
 
 function updateWordStats(wordCount) {
+    if (!wordCount) return;
+
     const sortedWords = Object.entries(wordCount)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10);
@@ -114,14 +154,32 @@ function updateWordStats(wordCount) {
     wordStats.innerHTML = sortedWords
         .map(([word, count]) => `
             <div class="word-stat-item">
-                <span>${word}</span>
-                <span>${count}</span>
+                <span class="word">${word}</span>
+                <span class="count">${count} 次</span>
             </div>
         `)
         .join('');
 }
 
 // 生成词云
+generateBtn.addEventListener('click', () => {
+    if (!currentWordCount) {
+        alert('请先点击"统计词频"按钮进行词频分析！');
+        return;
+    }
+
+    const wordcloudData = Object.entries(currentWordCount)
+        .sort((a, b) => b[1] - a[1])
+        .map(([text, count]) => ({
+            text,
+            size: Math.max(12, Math.min(60, 20 + count * 5)),
+            count
+        }));
+
+    generateWordCloud(wordcloudData);
+    saveBtn.style.display = 'block';
+});
+
 function generateWordCloud(words) {
     wordcloudContainer.innerHTML = '';
     
@@ -132,7 +190,7 @@ function generateWordCloud(words) {
         .size([width, height])
         .words(words)
         .padding(5)
-        .rotate(() => (~~(Math.random() * 2) - 1) * 90)
+        .rotate(() => 0)
         .fontSize(d => d.size)
         .on('end', draw);
 
@@ -146,15 +204,21 @@ function generateWordCloud(words) {
             .append('g')
             .attr('transform', `translate(${width/2},${height/2})`);
 
+        const maxCount = Math.max(...words.map(d => d.count));
+        const colorScale = d3.scaleLinear()
+            .domain([1, maxCount])
+            .range(['#7ec2f3', '#0071e3']);
+
         svg.selectAll('text')
             .data(words)
             .enter()
             .append('text')
             .style('font-size', d => `${d.size}px`)
             .style('font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI"')
-            .style('fill', () => `hsl(${Math.random() * 360}, 70%, 50%)`)
+            .style('fill', d => colorScale(d.count))
+            .style('font-weight', '500')
             .attr('text-anchor', 'middle')
-            .attr('transform', d => `translate(${d.x},${d.y})rotate(${d.rotate})`)
+            .attr('transform', d => `translate(${d.x},${d.y})`)
             .text(d => d.text);
     }
 }
@@ -174,25 +238,14 @@ resetBtn.addEventListener('click', () => {
     fileInput.value = '';
     wordcloudContainer.innerHTML = '';
     wordStats.innerHTML = '';
+    currentWordCount = null;
+    customStopwords.clear();
+    updateStopwordsList();
+    analysisSection.style.display = 'none';
+    saveBtn.style.display = 'none';
+    analyzeBtn.classList.remove('active');
+    charCount.textContent = `0 / ${MAX_CHARS}`;
 });
 
-// 实时处理输入文本
-textInput.addEventListener('input', debounce(() => {
-    processText(textInput.value);
-}, 500));
-
-// 防抖函数
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// 初始化停用词列表
+// 初始化
 updateStopwordsList(); 

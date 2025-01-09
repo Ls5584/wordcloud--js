@@ -143,19 +143,48 @@ textarea:focus {
     margin: 1rem 0;
 }
 
+.word-stats-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0.5rem;
+}
+
 .word-stats-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: 1fr;
     gap: 0.5rem;
 }
 
 .word-stat-item {
     background-color: var(--card-bg);
-    padding: 0.5rem;
-    border-radius: 6px;
-    display: flex;
-    justify-content: space-between;
+    padding: 0.8rem;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
     align-items: center;
+}
+
+.word-stat-item .word {
+    font-weight: 500;
+}
+
+.word-stat-item .count {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.stopwords-tip {
+    color: var(--text-color);
+    opacity: 0.8;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    text-align: center;
 }
 
 .stopwords-input {
@@ -257,4 +286,44 @@ button {
     .word-stats-list {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     }
+}
+
+.textarea-container {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.char-count {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-color);
+    opacity: 0.6;
+}
+
+.analysis-section {
+    margin-top: 2rem;
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 18px;
+    box-shadow: 0 2px 12px var(--shadow-color);
+}
+
+.analysis-section h3:first-child {
+    margin-top: 0;
+}
+
+#analyzeBtn {
+    background-color: var(--secondary-bg);
+    color: var(--text-color);
+}
+
+#analyzeBtn:hover {
+    background-color: var(--secondary-hover);
+}
+
+#analyzeBtn.active {
+    background-color: var(--primary-color);
+    color: white;
 } 
