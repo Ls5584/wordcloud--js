@@ -1,3 +1,27 @@
+:root[data-theme="light"] {
+    --bg-color: #f5f5f7;
+    --text-color: #1d1d1f;
+    --card-bg: #ffffff;
+    --border-color: #d2d2d7;
+    --primary-color: #0071e3;
+    --primary-hover: #0077ed;
+    --secondary-bg: #f5f5f7;
+    --secondary-hover: #e8e8ed;
+    --shadow-color: rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="dark"] {
+    --bg-color: #1d1d1f;
+    --text-color: #f5f5f7;
+    --card-bg: #2d2d2f;
+    --border-color: #3d3d3f;
+    --primary-color: #0a84ff;
+    --primary-hover: #0071e3;
+    --secondary-bg: #3d3d3f;
+    --secondary-hover: #4d4d4f;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,9 +30,45 @@
 }
 
 body {
-    background-color: #f5f5f7;
-    color: #1d1d1f;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     line-height: 1.5;
+    transition: background-color 0.3s ease;
+}
+
+.theme-switch {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+}
+
+#themeToggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--card-bg);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+#themeToggle svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--text-color);
+}
+
+.sun-icon {
+    display: none;
+}
+
+[data-theme="dark"] .sun-icon {
+    display: block;
+}
+
+[data-theme="dark"] .moon-icon {
+    display: none;
 }
 
 .container {
@@ -17,34 +77,41 @@ body {
     padding: 2rem;
 }
 
-h1 {
+h1, h3 {
     text-align: center;
     margin-bottom: 2rem;
     font-weight: 600;
 }
 
+h3 {
+    margin: 1.5rem 0 1rem;
+    font-size: 1.2rem;
+}
+
 .input-section {
-    background: white;
+    background: var(--card-bg);
     padding: 2rem;
     border-radius: 18px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 12px var(--shadow-color);
 }
 
 textarea {
     width: 100%;
     height: 200px;
     padding: 1rem;
-    border: 1px solid #d2d2d7;
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     resize: vertical;
     font-size: 16px;
     margin-bottom: 1rem;
     transition: border-color 0.2s ease;
+    background-color: var(--card-bg);
+    color: var(--text-color);
 }
 
 textarea:focus {
     outline: none;
-    border-color: #0071e3;
+    border-color: var(--primary-color);
 }
 
 .file-upload {
@@ -58,19 +125,83 @@ textarea:focus {
 .file-upload label {
     display: inline-block;
     padding: 0.8rem 1.5rem;
-    background-color: #f5f5f7;
+    background-color: var(--secondary-bg);
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    color: var(--text-color);
 }
 
 .file-upload label:hover {
-    background-color: #e8e8ed;
+    background-color: var(--secondary-hover);
+}
+
+.word-stats, .stopwords-section {
+    background-color: var(--secondary-bg);
+    padding: 1rem;
+    border-radius: 12px;
+    margin: 1rem 0;
+}
+
+.word-stats-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.5rem;
+}
+
+.word-stat-item {
+    background-color: var(--card-bg);
+    padding: 0.5rem;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stopwords-input {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.stopwords-input input {
+    flex: 1;
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+.stopwords-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.stopword-tag {
+    background-color: var(--card-bg);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stopword-tag button {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.2rem;
+    line-height: 1;
 }
 
 .buttons {
     display: flex;
     gap: 1rem;
+    margin-top: 1.5rem;
 }
 
 button {
@@ -84,32 +215,46 @@ button {
     transition: all 0.2s ease;
 }
 
-#generateBtn {
-    background-color: #0071e3;
+#generateBtn, #addStopword {
+    background-color: var(--primary-color);
     color: white;
 }
 
-#generateBtn:hover {
-    background-color: #0077ed;
+#generateBtn:hover, #addStopword:hover {
+    background-color: var(--primary-hover);
 }
 
-#resetBtn {
-    background-color: #f5f5f7;
-    color: #1d1d1f;
+#resetBtn, #saveBtn {
+    background-color: var(--secondary-bg);
+    color: var(--text-color);
 }
 
-#resetBtn:hover {
-    background-color: #e8e8ed;
+#resetBtn:hover, #saveBtn:hover {
+    background-color: var(--secondary-hover);
 }
 
 .wordcloud-container {
     margin-top: 2rem;
-    background: white;
+    background: var(--card-bg);
     padding: 2rem;
     border-radius: 18px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 12px var(--shadow-color);
     min-height: 400px;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .buttons {
+        flex-direction: column;
+    }
+    
+    .word-stats-list {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
 } 
